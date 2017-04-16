@@ -4,18 +4,25 @@ class Turbolinks.HttpRequest
 
   @timeout = 60
 
-  constructor: (@delegate, location, referrer) ->
+  constructor: (@delegate, location, referrer, xhr) ->
     @url = Turbolinks.Location.wrap(location).requestURL
     @referrer = Turbolinks.Location.wrap(referrer).absoluteURL
-    @createXHR()
+    if xhr
+      @xhr = xhr
+      @attachXHR()
+    else
+      @createXHR()
 
   send: ->
     if @xhr and not @sent
       @notifyApplicationBeforeRequestStart()
       @setProgress(0)
-      @xhr.send()
       @sent = true
+      if @xhr.readyState != 4
+        @xhr.send()
       @delegate.requestStarted?()
+      if @xhr.readyState == 4
+        @requestLoaded()
 
   cancel: ->
     if @xhr and @sent
@@ -65,6 +72,9 @@ class Turbolinks.HttpRequest
     @xhr.timeout = @constructor.timeout * 1000
     @xhr.setRequestHeader("Accept", "text/html, application/xhtml+xml")
     @xhr.setRequestHeader("Turbolinks-Referrer", @referrer)
+    @attachXHR()
+
+  attachXHR: ->
     @xhr.onprogress = @requestProgressed
     @xhr.onload = @requestLoaded
     @xhr.onerror = @requestFailed

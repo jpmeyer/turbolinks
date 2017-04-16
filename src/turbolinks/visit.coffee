@@ -40,9 +40,10 @@ class Turbolinks.Visit
       @historyChanged = true
 
   issueRequest: ->
-    if @shouldIssueRequest() and not @request?
+    if @shouldIssueRequest()
       @progress = 0
-      @request = new Turbolinks.HttpRequest this, @location, @referrer
+      if not @request?
+        @request = new Turbolinks.HttpRequest this, @location, @referrer
       @request.send()
 
   getCachedSnapshot: ->

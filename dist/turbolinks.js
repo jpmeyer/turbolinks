@@ -1,6 +1,1920 @@
 /*
 Turbolinks 5.0.0
-Copyright © 2016 Basecamp, LLC
+Copyright © 2017 Basecamp, LLC
  */
-(function(){(function(){(function(){this.Turbolinks={supported:function(){return null!=window.history.pushState&&null!=window.requestAnimationFrame}(),visit:function(e,r){return t.controller.visit(e,r)},clearCache:function(){return t.controller.clearCache()}}}).call(this)}).call(this);var t=this.Turbolinks;(function(){(function(){var e,r;t.copyObject=function(t){var e,r,n;r={};for(e in t)n=t[e],r[e]=n;return r},t.closest=function(t,r){return e.call(t,r)},e=function(){var t,e;return t=document.documentElement,null!=(e=t.closest)?e:function(t){var e;for(e=this;e;){if(e.nodeType===Node.ELEMENT_NODE&&r.call(e,t))return e;e=e.parentNode}}}(),t.defer=function(t){return setTimeout(t,1)},t.dispatch=function(t,e){var r,n,o,i,s;return i=null!=e?e:{},s=i.target,r=i.cancelable,n=i.data,o=document.createEvent("Events"),o.initEvent(t,!0,r===!0),o.data=null!=n?n:{},(null!=s?s:document).dispatchEvent(o),o},t.match=function(t,e){return r.call(t,e)},r=function(){var t,e,r,n;return t=document.documentElement,null!=(e=null!=(r=null!=(n=t.matchesSelector)?n:t.webkitMatchesSelector)?r:t.msMatchesSelector)?e:t.mozMatchesSelector}(),t.uuid=function(){var t,e,r;for(r="",t=e=1;36>=e;t=++e)r+=9===t||14===t||19===t||24===t?"-":15===t?"4":20===t?(Math.floor(4*Math.random())+8).toString(16):Math.floor(15*Math.random()).toString(16);return r}}).call(this),function(){t.Location=function(){function t(t){var e,r;null==t&&(t=""),r=document.createElement("a"),r.href=t.toString(),this.absoluteURL=r.href,e=r.hash.length,2>e?this.requestURL=this.absoluteURL:(this.requestURL=this.absoluteURL.slice(0,-e),this.anchor=r.hash.slice(1))}var e,r,n,o;return t.wrap=function(t){return t instanceof this?t:new this(t)},t.prototype.getOrigin=function(){return this.absoluteURL.split("/",3).join("/")},t.prototype.getPath=function(){var t,e;return null!=(t=null!=(e=this.absoluteURL.match(/\/\/[^\/]*(\/[^?;]*)/))?e[1]:void 0)?t:"/"},t.prototype.getPathComponents=function(){return this.getPath().split("/").slice(1)},t.prototype.getLastPathComponent=function(){return this.getPathComponents().slice(-1)[0]},t.prototype.getExtension=function(){var t,e;return null!=(t=null!=(e=this.getLastPathComponent().match(/\.[^.]*$/))?e[0]:void 0)?t:""},t.prototype.isHTML=function(){return this.getExtension().match(/^(?:|\.(?:htm|html|xhtml))$/)},t.prototype.isPrefixedBy=function(t){var e;return e=r(t),this.isEqualTo(t)||o(this.absoluteURL,e)},t.prototype.isEqualTo=function(t){return this.absoluteURL===(null!=t?t.absoluteURL:void 0)},t.prototype.toCacheKey=function(){return this.requestURL},t.prototype.toJSON=function(){return this.absoluteURL},t.prototype.toString=function(){return this.absoluteURL},t.prototype.valueOf=function(){return this.absoluteURL},r=function(t){return e(t.getOrigin()+t.getPath())},e=function(t){return n(t,"/")?t:t+"/"},o=function(t,e){return t.slice(0,e.length)===e},n=function(t,e){return t.slice(-e.length)===e},t}()}.call(this),function(){var e=function(t,e){return function(){return t.apply(e,arguments)}};t.HttpRequest=function(){function r(r,n,o){this.delegate=r,this.requestCanceled=e(this.requestCanceled,this),this.requestTimedOut=e(this.requestTimedOut,this),this.requestFailed=e(this.requestFailed,this),this.requestLoaded=e(this.requestLoaded,this),this.requestProgressed=e(this.requestProgressed,this),this.url=t.Location.wrap(n).requestURL,this.referrer=t.Location.wrap(o).absoluteURL,this.createXHR()}return r.NETWORK_FAILURE=0,r.TIMEOUT_FAILURE=-1,r.timeout=60,r.prototype.send=function(){var t;return this.xhr&&!this.sent?(this.notifyApplicationBeforeRequestStart(),this.setProgress(0),this.xhr.send(),this.sent=!0,"function"==typeof(t=this.delegate).requestStarted?t.requestStarted():void 0):void 0},r.prototype.cancel=function(){return this.xhr&&this.sent?this.xhr.abort():void 0},r.prototype.requestProgressed=function(t){return t.lengthComputable?this.setProgress(t.loaded/t.total):void 0},r.prototype.requestLoaded=function(){return this.endRequest(function(t){return function(){var e;return 200<=(e=t.xhr.status)&&300>e?t.delegate.requestCompletedWithResponse(t.xhr.responseText,t.xhr.getResponseHeader("Turbolinks-Location")):(t.failed=!0,t.delegate.requestFailedWithStatusCode(t.xhr.status,t.xhr.responseText))}}(this))},r.prototype.requestFailed=function(){return this.endRequest(function(t){return function(){return t.failed=!0,t.delegate.requestFailedWithStatusCode(t.constructor.NETWORK_FAILURE)}}(this))},r.prototype.requestTimedOut=function(){return this.endRequest(function(t){return function(){return t.failed=!0,t.delegate.requestFailedWithStatusCode(t.constructor.TIMEOUT_FAILURE)}}(this))},r.prototype.requestCanceled=function(){return this.endRequest()},r.prototype.notifyApplicationBeforeRequestStart=function(){return t.dispatch("turbolinks:request-start",{data:{url:this.url,xhr:this.xhr}})},r.prototype.notifyApplicationAfterRequestEnd=function(){return t.dispatch("turbolinks:request-end",{data:{url:this.url,xhr:this.xhr}})},r.prototype.createXHR=function(){return this.xhr=new XMLHttpRequest,this.xhr.open("GET",this.url,!0),this.xhr.timeout=1e3*this.constructor.timeout,this.xhr.setRequestHeader("Accept","text/html, application/xhtml+xml"),this.xhr.setRequestHeader("Turbolinks-Referrer",this.referrer),this.xhr.onprogress=this.requestProgressed,this.xhr.onload=this.requestLoaded,this.xhr.onerror=this.requestFailed,this.xhr.ontimeout=this.requestTimedOut,this.xhr.onabort=this.requestCanceled},r.prototype.endRequest=function(t){return this.xhr?(this.notifyApplicationAfterRequestEnd(),null!=t&&t.call(this),this.destroy()):void 0},r.prototype.setProgress=function(t){var e;return this.progress=t,"function"==typeof(e=this.delegate).requestProgressed?e.requestProgressed(this.progress):void 0},r.prototype.destroy=function(){var t;return this.setProgress(1),"function"==typeof(t=this.delegate).requestFinished&&t.requestFinished(),this.delegate=null,this.xhr=null},r}()}.call(this),function(){var e=function(t,e){return function(){return t.apply(e,arguments)}};t.ProgressBar=function(){function t(){this.trickle=e(this.trickle,this),this.stylesheetElement=this.createStylesheetElement(),this.progressElement=this.createProgressElement()}var r;return r=300,t.defaultCSS=".turbolinks-progress-bar {\n  position: fixed;\n  display: block;\n  top: 0;\n  left: 0;\n  height: 3px;\n  background: #0076ff;\n  z-index: 9999;\n  transition: width "+r+"ms ease-out, opacity "+r/2+"ms "+r/2+"ms ease-in;\n  transform: translate3d(0, 0, 0);\n}",t.prototype.show=function(){return this.visible?void 0:(this.visible=!0,this.installStylesheetElement(),this.installProgressElement(),this.startTrickling())},t.prototype.hide=function(){return this.visible&&!this.hiding?(this.hiding=!0,this.fadeProgressElement(function(t){return function(){return t.uninstallProgressElement(),t.stopTrickling(),t.visible=!1,t.hiding=!1}}(this))):void 0},t.prototype.setValue=function(t){return this.value=t,this.refresh()},t.prototype.installStylesheetElement=function(){return document.head.insertBefore(this.stylesheetElement,document.head.firstChild)},t.prototype.installProgressElement=function(){return this.progressElement.style.width=0,this.progressElement.style.opacity=1,document.documentElement.insertBefore(this.progressElement,document.body),this.refresh()},t.prototype.fadeProgressElement=function(t){return this.progressElement.style.opacity=0,setTimeout(t,1.5*r)},t.prototype.uninstallProgressElement=function(){return this.progressElement.parentNode?document.documentElement.removeChild(this.progressElement):void 0},t.prototype.startTrickling=function(){return null!=this.trickleInterval?this.trickleInterval:this.trickleInterval=setInterval(this.trickle,r)},t.prototype.stopTrickling=function(){return clearInterval(this.trickleInterval),this.trickleInterval=null},t.prototype.trickle=function(){return this.setValue(this.value+Math.random()/100)},t.prototype.refresh=function(){return requestAnimationFrame(function(t){return function(){return t.progressElement.style.width=10+90*t.value+"%"}}(this))},t.prototype.createStylesheetElement=function(){var t;return t=document.createElement("style"),t.type="text/css",t.textContent=this.constructor.defaultCSS,t},t.prototype.createProgressElement=function(){var t;return t=document.createElement("div"),t.className="turbolinks-progress-bar",t},t}()}.call(this),function(){var e=function(t,e){return function(){return t.apply(e,arguments)}};t.BrowserAdapter=function(){function r(r){this.controller=r,this.showProgressBar=e(this.showProgressBar,this),this.progressBar=new t.ProgressBar}var n,o,i,s;return s=t.HttpRequest,n=s.NETWORK_FAILURE,i=s.TIMEOUT_FAILURE,o=500,r.prototype.visitProposedToLocationWithAction=function(t,e){return this.controller.startVisitToLocationWithAction(t,e)},r.prototype.visitStarted=function(t){return t.issueRequest(),t.changeHistory(),t.loadCachedSnapshot()},r.prototype.visitRequestStarted=function(t){return this.progressBar.setValue(0),t.hasCachedSnapshot()||"restore"!==t.action?this.showProgressBarAfterDelay():this.showProgressBar()},r.prototype.visitRequestProgressed=function(t){return this.progressBar.setValue(t.progress)},r.prototype.visitRequestCompleted=function(t){return t.loadResponse()},r.prototype.visitRequestFailedWithStatusCode=function(t,e){switch(e){case n:case i:return this.reload();default:return t.loadResponse()}},r.prototype.visitRequestFinished=function(t){return this.hideProgressBar()},r.prototype.visitCompleted=function(t){return t.followRedirect()},r.prototype.pageInvalidated=function(){return this.reload()},r.prototype.showProgressBarAfterDelay=function(){return this.progressBarTimeout=setTimeout(this.showProgressBar,o)},r.prototype.showProgressBar=function(){return this.progressBar.show()},r.prototype.hideProgressBar=function(){return this.progressBar.hide(),clearTimeout(this.progressBarTimeout)},r.prototype.reload=function(){return window.location.reload()},r}()}.call(this),function(){var e,r=function(t,e){return function(){return t.apply(e,arguments)}};e=!1,addEventListener("load",function(){return t.defer(function(){return e=!0})},!1),t.History=function(){function n(t){this.delegate=t,this.onPopState=r(this.onPopState,this)}return n.prototype.start=function(){return this.started?void 0:(addEventListener("popstate",this.onPopState,!1),this.started=!0)},n.prototype.stop=function(){return this.started?(removeEventListener("popstate",this.onPopState,!1),this.started=!1):void 0},n.prototype.push=function(e,r){return e=t.Location.wrap(e),this.update("push",e,r)},n.prototype.replace=function(e,r){return e=t.Location.wrap(e),this.update("replace",e,r)},n.prototype.onPopState=function(e){var r,n,o,i;return this.shouldHandlePopState()&&(i=null!=(n=e.state)?n.turbolinks:void 0)?(r=t.Location.wrap(window.location),o=i.restorationIdentifier,this.delegate.historyPoppedToLocationWithRestorationIdentifier(r,o)):void 0},n.prototype.shouldHandlePopState=function(){return e===!0},n.prototype.update=function(t,e,r){var n;return n={turbolinks:{restorationIdentifier:r}},history[t+"State"](n,null,e)},n}()}.call(this),function(){t.Snapshot=function(){function e(t){var e,r;r=t.head,e=t.body,this.head=null!=r?r:document.createElement("head"),this.body=null!=e?e:document.createElement("body")}return e.wrap=function(t){return t instanceof this?t:this.fromHTML(t)},e.fromHTML=function(t){var e;return e=document.createElement("html"),e.innerHTML=t,this.fromElement(e)},e.fromElement=function(t){return new this({head:t.querySelector("head"),body:t.querySelector("body")})},e.prototype.clone=function(){return new e({head:this.head.cloneNode(!0),body:this.body.cloneNode(!0)})},e.prototype.getRootLocation=function(){var e,r;return r=null!=(e=this.getSetting("root"))?e:"/",new t.Location(r)},e.prototype.getCacheControlValue=function(){return this.getSetting("cache-control")},e.prototype.hasAnchor=function(t){try{return null!=this.body.querySelector("[id='"+t+"']")}catch(e){}},e.prototype.isPreviewable=function(){return"no-preview"!==this.getCacheControlValue()},e.prototype.isCacheable=function(){return"no-cache"!==this.getCacheControlValue()},e.prototype.getSetting=function(t){var e,r;return r=this.head.querySelectorAll("meta[name='turbolinks-"+t+"']"),e=r[r.length-1],null!=e?e.getAttribute("content"):void 0},e}()}.call(this),function(){var e=[].slice;t.Renderer=function(){function t(){}var r;return t.render=function(){var t,r,n,o;return n=arguments[0],r=arguments[1],t=3<=arguments.length?e.call(arguments,2):[],o=function(t,e,r){r.prototype=t.prototype;var n=new r,o=t.apply(n,e);return Object(o)===o?o:n}(this,t,function(){}),o.delegate=n,o.render(r),o},t.prototype.renderView=function(t){return this.delegate.viewWillRender(this.newBody),t(),this.delegate.viewRendered(this.newBody)},t.prototype.invalidateView=function(){return this.delegate.viewInvalidated()},t.prototype.createScriptElement=function(t){var e;return"false"===t.getAttribute("data-turbolinks-eval")?t:(e=document.createElement("script"),e.textContent=t.textContent,r(e,t),e)},r=function(t,e){var r,n,o,i,s,a,u;for(i=e.attributes,a=[],r=0,n=i.length;n>r;r++)s=i[r],o=s.name,u=s.value,a.push(t.setAttribute(o,u));return a},t}()}.call(this),function(){t.HeadDetails=function(){function t(t){var e,r,i,s,a,u,c;for(this.element=t,this.elements={},c=this.element.childNodes,s=0,u=c.length;u>s;s++)i=c[s],i.nodeType===Node.ELEMENT_NODE&&(a=i.outerHTML,r=null!=(e=this.elements)[a]?e[a]:e[a]={type:o(i),tracked:n(i),elements:[]},r.elements.push(i))}var e,r,n,o;return t.prototype.hasElementWithKey=function(t){return t in this.elements},t.prototype.getTrackedElementSignature=function(){var t,e;return function(){var r,n;r=this.elements,n=[];for(t in r)e=r[t].tracked,e&&n.push(t);return n}.call(this).join("")},t.prototype.getScriptElementsNotInDetails=function(t){return this.getElementsMatchingTypeNotInDetails("script",t)},t.prototype.getStylesheetElementsNotInDetails=function(t){return this.getElementsMatchingTypeNotInDetails("stylesheet",t)},t.prototype.getElementsMatchingTypeNotInDetails=function(t,e){var r,n,o,i,s,a;o=this.elements,s=[];for(n in o)i=o[n],a=i.type,r=i.elements,a!==t||e.hasElementWithKey(n)||s.push(r[0]);return s},t.prototype.getProvisionalElements=function(){var t,e,r,n,o,i,s;r=[],n=this.elements;for(e in n)o=n[e],s=o.type,i=o.tracked,t=o.elements,null!=s||i?t.length>1&&r.push.apply(r,t.slice(1)):r.push.apply(r,t);return r},o=function(t){return e(t)?"script":r(t)?"stylesheet":void 0},n=function(t){return"reload"===t.getAttribute("data-turbolinks-track")},e=function(t){var e;return e=t.tagName.toLowerCase(),"script"===e},r=function(t){var e;return e=t.tagName.toLowerCase(),"style"===e||"link"===e&&"stylesheet"===t.getAttribute("rel")},t}()}.call(this),function(){var e=function(t,e){function n(){this.constructor=t}for(var o in e)r.call(e,o)&&(t[o]=e[o]);return n.prototype=e.prototype,t.prototype=new n,t.__super__=e.prototype,t},r={}.hasOwnProperty;t.SnapshotRenderer=function(r){function n(e,r){this.currentSnapshot=e,this.newSnapshot=r,this.currentHeadDetails=new t.HeadDetails(this.currentSnapshot.head),this.newHeadDetails=new t.HeadDetails(this.newSnapshot.head),this.newBody=this.newSnapshot.body}return e(n,r),n.prototype.render=function(t){return this.trackedElementsAreIdentical()?(this.mergeHead(),this.renderView(function(e){return function(){return e.replaceBody(),e.focusFirstAutofocusableElement(),t()}}(this))):this.invalidateView()},n.prototype.mergeHead=function(){return this.copyNewHeadStylesheetElements(),this.copyNewHeadScriptElements(),this.removeCurrentHeadProvisionalElements(),this.copyNewHeadProvisionalElements()},n.prototype.replaceBody=function(){return this.activateBodyScriptElements(),this.importBodyPermanentElements(),this.assignNewBody()},n.prototype.trackedElementsAreIdentical=function(){return this.currentHeadDetails.getTrackedElementSignature()===this.newHeadDetails.getTrackedElementSignature()},n.prototype.copyNewHeadStylesheetElements=function(){var t,e,r,n,o;for(n=this.getNewHeadStylesheetElements(),o=[],e=0,r=n.length;r>e;e++)t=n[e],o.push(document.head.appendChild(t));return o},n.prototype.copyNewHeadScriptElements=function(){var t,e,r,n,o;for(n=this.getNewHeadScriptElements(),o=[],e=0,r=n.length;r>e;e++)t=n[e],o.push(document.head.appendChild(this.createScriptElement(t)));return o},n.prototype.removeCurrentHeadProvisionalElements=function(){var t,e,r,n,o;for(n=this.getCurrentHeadProvisionalElements(),o=[],e=0,r=n.length;r>e;e++)t=n[e],o.push(document.head.removeChild(t));return o},n.prototype.copyNewHeadProvisionalElements=function(){var t,e,r,n,o;for(n=this.getNewHeadProvisionalElements(),o=[],e=0,r=n.length;r>e;e++)t=n[e],o.push(document.head.appendChild(t));return o},n.prototype.importBodyPermanentElements=function(){var t,e,r,n,o,i;for(n=this.getNewBodyPermanentElements(),i=[],e=0,r=n.length;r>e;e++)o=n[e],(t=this.findCurrentBodyPermanentElement(o))?i.push(o.parentNode.replaceChild(t,o)):i.push(void 0);return i},n.prototype.activateBodyScriptElements=function(){var t,e,r,n,o,i;for(n=this.getNewBodyScriptElements(),i=[],e=0,r=n.length;r>e;e++)o=n[e],t=this.createScriptElement(o),i.push(o.parentNode.replaceChild(t,o));return i},n.prototype.assignNewBody=function(){return document.body=this.newBody},n.prototype.focusFirstAutofocusableElement=function(){var t;return null!=(t=this.findFirstAutofocusableElement())?t.focus():void 0},n.prototype.getNewHeadStylesheetElements=function(){return this.newHeadDetails.getStylesheetElementsNotInDetails(this.currentHeadDetails)},n.prototype.getNewHeadScriptElements=function(){return this.newHeadDetails.getScriptElementsNotInDetails(this.currentHeadDetails)},n.prototype.getCurrentHeadProvisionalElements=function(){return this.currentHeadDetails.getProvisionalElements()},n.prototype.getNewHeadProvisionalElements=function(){return this.newHeadDetails.getProvisionalElements()},n.prototype.getNewBodyPermanentElements=function(){return this.newBody.querySelectorAll("[id][data-turbolinks-permanent]")},n.prototype.findCurrentBodyPermanentElement=function(t){return document.body.querySelector("#"+t.id+"[data-turbolinks-permanent]")},n.prototype.getNewBodyScriptElements=function(){return this.newBody.querySelectorAll("script")},n.prototype.findFirstAutofocusableElement=function(){return document.body.querySelector("[autofocus]")},n}(t.Renderer)}.call(this),function(){var e=function(t,e){function n(){this.constructor=t}for(var o in e)r.call(e,o)&&(t[o]=e[o]);return n.prototype=e.prototype,t.prototype=new n,t.__super__=e.prototype,t},r={}.hasOwnProperty;t.ErrorRenderer=function(t){function r(t){this.html=t}return e(r,t),r.prototype.render=function(t){return this.renderView(function(e){return function(){return e.replaceDocumentHTML(),e.activateBodyScriptElements(),t()}}(this))},r.prototype.replaceDocumentHTML=function(){return document.documentElement.innerHTML=this.html},r.prototype.activateBodyScriptElements=function(){var t,e,r,n,o,i;for(n=this.getScriptElements(),i=[],e=0,r=n.length;r>e;e++)o=n[e],t=this.createScriptElement(o),i.push(o.parentNode.replaceChild(t,o));return i},r.prototype.getScriptElements=function(){return document.documentElement.querySelectorAll("script")},r}(t.Renderer)}.call(this),function(){t.View=function(){function e(t){this.delegate=t,this.element=document.documentElement}return e.prototype.getRootLocation=function(){return this.getSnapshot().getRootLocation()},e.prototype.getSnapshot=function(){return t.Snapshot.fromElement(this.element)},e.prototype.render=function(t,e){var r,n,o;return o=t.snapshot,r=t.error,n=t.isPreview,this.markAsPreview(n),null!=o?this.renderSnapshot(o,e):this.renderError(r,e)},e.prototype.markAsPreview=function(t){return t?this.element.setAttribute("data-turbolinks-preview",""):this.element.removeAttribute("data-turbolinks-preview")},e.prototype.renderSnapshot=function(e,r){return t.SnapshotRenderer.render(this.delegate,r,this.getSnapshot(),t.Snapshot.wrap(e))},e.prototype.renderError=function(e,r){return t.ErrorRenderer.render(this.delegate,r,e)},e}()}.call(this),function(){var e=function(t,e){return function(){return t.apply(e,arguments)}};t.ScrollManager=function(){function t(t){this.delegate=t,this.onScroll=e(this.onScroll,this)}return t.prototype.start=function(){return this.started?void 0:(addEventListener("scroll",this.onScroll,!1),this.onScroll(),this.started=!0)},t.prototype.stop=function(){return this.started?(removeEventListener("scroll",this.onScroll,!1),this.started=!1):void 0},t.prototype.scrollToElement=function(t){return t.scrollIntoView()},t.prototype.scrollToPosition=function(t){var e,r;return e=t.x,r=t.y,window.scrollTo(e,r)},t.prototype.onScroll=function(t){return this.updatePosition({x:window.pageXOffset,y:window.pageYOffset})},t.prototype.updatePosition=function(t){var e;return this.position=t,null!=(e=this.delegate)?e.scrollPositionChanged(this.position):void 0},t}()}.call(this),function(){t.SnapshotCache=function(){function e(t){this.size=t,this.keys=[],this.snapshots={}}var r;return e.prototype.has=function(t){var e;return e=r(t),e in this.snapshots},e.prototype.get=function(t){var e;if(this.has(t))return e=this.read(t),this.touch(t),e},e.prototype.put=function(t,e){return this.write(t,e),this.touch(t),e},e.prototype.read=function(t){var e;return e=r(t),this.snapshots[e]},e.prototype.write=function(t,e){var n;return n=r(t),this.snapshots[n]=e},e.prototype.touch=function(t){var e,n;return n=r(t),e=this.keys.indexOf(n),e>-1&&this.keys.splice(e,1),this.keys.unshift(n),this.trim()},e.prototype.trim=function(){var t,e,r,n,o;for(n=this.keys.splice(this.size),o=[],t=0,r=n.length;r>t;t++)e=n[t],o.push(delete this.snapshots[e]);return o},r=function(e){return t.Location.wrap(e).toCacheKey()},e}()}.call(this),function(){var e=function(t,e){return function(){return t.apply(e,arguments)}};t.Visit=function(){function r(r,n,o){this.controller=r,this.action=o,this.performScroll=e(this.performScroll,this),this.identifier=t.uuid(),this.location=t.Location.wrap(n),this.adapter=this.controller.adapter,this.state="initialized",this.timingMetrics={}}var n;return r.prototype.start=function(){return"initialized"===this.state?(this.recordTimingMetric("visitStart"),this.state="started",this.adapter.visitStarted(this)):void 0},r.prototype.cancel=function(){var t;return"started"===this.state?(null!=(t=this.request)&&t.cancel(),this.cancelRender(),this.state="canceled"):void 0},r.prototype.complete=function(){var t;return"started"===this.state?(this.recordTimingMetric("visitEnd"),this.state="completed","function"==typeof(t=this.adapter).visitCompleted&&t.visitCompleted(this),this.controller.visitCompleted(this)):void 0},r.prototype.fail=function(){var t;return"started"===this.state?(this.state="failed","function"==typeof(t=this.adapter).visitFailed?t.visitFailed(this):void 0):void 0},r.prototype.changeHistory=function(){var t,e;return this.historyChanged?void 0:(t=this.location.isEqualTo(this.referrer)?"replace":this.action,e=n(t),this.controller[e](this.location,this.restorationIdentifier),this.historyChanged=!0)},r.prototype.issueRequest=function(){return this.shouldIssueRequest()&&null==this.request?(this.progress=0,this.request=new t.HttpRequest(this,this.location,this.referrer),this.request.send()):void 0},r.prototype.getCachedSnapshot=function(){var t;return!(t=this.controller.getCachedSnapshotForLocation(this.location))||null!=this.location.anchor&&!t.hasAnchor(this.location.anchor)||"restore"!==this.action&&!t.isPreviewable()?void 0:t},r.prototype.hasCachedSnapshot=function(){return null!=this.getCachedSnapshot()},r.prototype.loadCachedSnapshot=function(){var t,e;return(e=this.getCachedSnapshot())?(t=this.shouldIssueRequest(),this.render(function(){var r;return this.cacheSnapshot(),this.controller.render({snapshot:e,isPreview:t},this.performScroll),"function"==typeof(r=this.adapter).visitRendered&&r.visitRendered(this),t?void 0:this.complete()})):void 0},r.prototype.loadResponse=function(){return null!=this.response?this.render(function(){var t,e;return this.cacheSnapshot(),this.request.failed?(this.controller.render({error:this.response},this.performScroll),"function"==typeof(t=this.adapter).visitRendered&&t.visitRendered(this),this.fail()):(this.controller.render({snapshot:this.response},this.performScroll),"function"==typeof(e=this.adapter).visitRendered&&e.visitRendered(this),this.complete())}):void 0},r.prototype.followRedirect=function(){return this.redirectedToLocation&&!this.followedRedirect?(this.location=this.redirectedToLocation,this.controller.replaceHistoryWithLocationAndRestorationIdentifier(this.redirectedToLocation,this.restorationIdentifier),this.followedRedirect=!0):void 0},r.prototype.requestStarted=function(){var t;return this.recordTimingMetric("requestStart"),"function"==typeof(t=this.adapter).visitRequestStarted?t.visitRequestStarted(this):void 0},r.prototype.requestProgressed=function(t){var e;return this.progress=t,"function"==typeof(e=this.adapter).visitRequestProgressed?e.visitRequestProgressed(this):void 0},r.prototype.requestCompletedWithResponse=function(e,r){return this.response=e,null!=r&&(this.redirectedToLocation=t.Location.wrap(r)),this.adapter.visitRequestCompleted(this)},r.prototype.requestFailedWithStatusCode=function(t,e){return this.response=e,this.adapter.visitRequestFailedWithStatusCode(this,t)},r.prototype.requestFinished=function(){var t;return this.recordTimingMetric("requestEnd"),"function"==typeof(t=this.adapter).visitRequestFinished?t.visitRequestFinished(this):void 0},r.prototype.performScroll=function(){return this.scrolled?void 0:("restore"===this.action?this.scrollToRestoredPosition()||this.scrollToTop():this.scrollToAnchor()||this.scrollToTop(),this.scrolled=!0)},r.prototype.scrollToRestoredPosition=function(){var t,e;return t=null!=(e=this.restorationData)?e.scrollPosition:void 0,null!=t?(this.controller.scrollToPosition(t),!0):void 0},r.prototype.scrollToAnchor=function(){return null!=this.location.anchor?(this.controller.scrollToAnchor(this.location.anchor),!0):void 0},r.prototype.scrollToTop=function(){return this.controller.scrollToPosition({x:0,y:0})},r.prototype.recordTimingMetric=function(t){var e;return null!=(e=this.timingMetrics)[t]?e[t]:e[t]=(new Date).getTime()},r.prototype.getTimingMetrics=function(){return t.copyObject(this.timingMetrics)},n=function(t){switch(t){case"replace":return"replaceHistoryWithLocationAndRestorationIdentifier";case"advance":case"restore":return"pushHistoryWithLocationAndRestorationIdentifier"}},r.prototype.shouldIssueRequest=function(){return"restore"===this.action?!this.hasCachedSnapshot():!0},r.prototype.cacheSnapshot=function(){return this.snapshotCached?void 0:(this.controller.cacheSnapshot(),this.snapshotCached=!0)},r.prototype.render=function(t){return this.cancelRender(),this.frame=requestAnimationFrame(function(e){return function(){return e.frame=null,t.call(e)}}(this))},r.prototype.cancelRender=function(){return this.frame?cancelAnimationFrame(this.frame):void 0},r}()}.call(this),function(){var e=function(t,e){return function(){return t.apply(e,arguments)}};t.Controller=function(){function r(){this.clickBubbled=e(this.clickBubbled,this),this.clickCaptured=e(this.clickCaptured,this),this.pageLoaded=e(this.pageLoaded,this),this.history=new t.History(this),this.view=new t.View(this),this.scrollManager=new t.ScrollManager(this),this.restorationData={},this.clearCache()}return r.prototype.start=function(){return t.supported&&!this.started?(addEventListener("click",this.clickCaptured,!0),addEventListener("DOMContentLoaded",this.pageLoaded,!1),this.scrollManager.start(),this.startHistory(),this.started=!0,this.enabled=!0):void 0},r.prototype.disable=function(){return this.enabled=!1},r.prototype.stop=function(){return this.started?(removeEventListener("click",this.clickCaptured,!0),removeEventListener("DOMContentLoaded",this.pageLoaded,!1),this.scrollManager.stop(),this.stopHistory(),this.started=!1):void 0},r.prototype.clearCache=function(){return this.cache=new t.SnapshotCache(10)},r.prototype.visit=function(e,r){var n,o;return null==r&&(r={}),e=t.Location.wrap(e),this.applicationAllowsVisitingLocation(e)?this.locationIsVisitable(e)?(n=null!=(o=r.action)?o:"advance",this.adapter.visitProposedToLocationWithAction(e,n)):window.location=e:void 0},r.prototype.startVisitToLocationWithAction=function(e,r,n){var o;return t.supported?(o=this.getRestorationDataForIdentifier(n),this.startVisit(e,r,{restorationData:o})):window.location=e},r.prototype.startHistory=function(){return this.location=t.Location.wrap(window.location),this.restorationIdentifier=t.uuid(),this.history.start(),this.history.replace(this.location,this.restorationIdentifier)},r.prototype.stopHistory=function(){return this.history.stop()},r.prototype.pushHistoryWithLocationAndRestorationIdentifier=function(e,r){return this.restorationIdentifier=r,this.location=t.Location.wrap(e),this.history.push(this.location,this.restorationIdentifier)},r.prototype.replaceHistoryWithLocationAndRestorationIdentifier=function(e,r){return this.restorationIdentifier=r,this.location=t.Location.wrap(e),this.history.replace(this.location,this.restorationIdentifier)},r.prototype.historyPoppedToLocationWithRestorationIdentifier=function(e,r){var n;return this.restorationIdentifier=r,this.enabled?(n=this.getRestorationDataForIdentifier(this.restorationIdentifier),this.startVisit(e,"restore",{restorationIdentifier:this.restorationIdentifier,restorationData:n,historyChanged:!0}),this.location=t.Location.wrap(e)):this.adapter.pageInvalidated()},r.prototype.getCachedSnapshotForLocation=function(t){var e;return e=this.cache.get(t),e?e.clone():void 0},r.prototype.shouldCacheSnapshot=function(){return this.view.getSnapshot().isCacheable()},r.prototype.cacheSnapshot=function(){var t;return this.shouldCacheSnapshot()?(this.notifyApplicationBeforeCachingSnapshot(),t=this.view.getSnapshot(),this.cache.put(this.lastRenderedLocation,t.clone())):void 0},r.prototype.scrollToAnchor=function(t){var e;return(e=document.getElementById(t))?this.scrollToElement(e):this.scrollToPosition({x:0,y:0})},r.prototype.scrollToElement=function(t){return this.scrollManager.scrollToElement(t)},r.prototype.scrollToPosition=function(t){return this.scrollManager.scrollToPosition(t)},r.prototype.scrollPositionChanged=function(t){var e;return e=this.getCurrentRestorationData(),e.scrollPosition=t},r.prototype.render=function(t,e){return this.view.render(t,e)},r.prototype.viewInvalidated=function(){return this.adapter.pageInvalidated()},r.prototype.viewWillRender=function(t){return this.notifyApplicationBeforeRender(t)},r.prototype.viewRendered=function(){return this.lastRenderedLocation=this.currentVisit.location,this.notifyApplicationAfterRender()},r.prototype.pageLoaded=function(){return this.lastRenderedLocation=this.location,this.notifyApplicationAfterPageLoad()},r.prototype.clickCaptured=function(){return removeEventListener("click",this.clickBubbled,!1),addEventListener("click",this.clickBubbled,!1)},r.prototype.clickBubbled=function(t){var e,r,n;return this.enabled&&this.clickEventIsSignificant(t)&&(r=this.getVisitableLinkForNode(t.target))&&(n=this.getVisitableLocationForLink(r))&&this.applicationAllowsFollowingLinkToLocation(r,n)?(t.preventDefault(),e=this.getActionForLink(r),this.visit(n,{action:e})):void 0},r.prototype.applicationAllowsFollowingLinkToLocation=function(t,e){var r;return r=this.notifyApplicationAfterClickingLinkToLocation(t,e),!r.defaultPrevented},r.prototype.applicationAllowsVisitingLocation=function(t){var e;return e=this.notifyApplicationBeforeVisitingLocation(t),!e.defaultPrevented},r.prototype.notifyApplicationAfterClickingLinkToLocation=function(e,r){return t.dispatch("turbolinks:click",{target:e,data:{url:r.absoluteURL},cancelable:!0})},r.prototype.notifyApplicationBeforeVisitingLocation=function(e){return t.dispatch("turbolinks:before-visit",{data:{url:e.absoluteURL},cancelable:!0})},r.prototype.notifyApplicationAfterVisitingLocation=function(e){return t.dispatch("turbolinks:visit",{data:{url:e.absoluteURL}})},r.prototype.notifyApplicationBeforeCachingSnapshot=function(){return t.dispatch("turbolinks:before-cache")},r.prototype.notifyApplicationBeforeRender=function(e){return t.dispatch("turbolinks:before-render",{data:{newBody:e}})},r.prototype.notifyApplicationAfterRender=function(){return t.dispatch("turbolinks:render")},r.prototype.notifyApplicationAfterPageLoad=function(e){return null==e&&(e={}),t.dispatch("turbolinks:load",{data:{url:this.location.absoluteURL,timing:e}})},r.prototype.startVisit=function(t,e,r){var n;return null!=(n=this.currentVisit)&&n.cancel(),this.currentVisit=this.createVisit(t,e,r),this.currentVisit.start(),this.notifyApplicationAfterVisitingLocation(t)},r.prototype.createVisit=function(e,r,n){
-var o,i,s,a,u;return i=null!=n?n:{},a=i.restorationIdentifier,s=i.restorationData,o=i.historyChanged,u=new t.Visit(this,e,r),u.restorationIdentifier=null!=a?a:t.uuid(),u.restorationData=t.copyObject(s),u.historyChanged=o,u.referrer=this.location,u},r.prototype.visitCompleted=function(t){return this.notifyApplicationAfterPageLoad(t.getTimingMetrics())},r.prototype.clickEventIsSignificant=function(t){return!(t.defaultPrevented||t.target.isContentEditable||t.which>1||t.altKey||t.ctrlKey||t.metaKey||t.shiftKey)},r.prototype.getVisitableLinkForNode=function(e){return this.nodeIsVisitable(e)?t.closest(e,"a[href]:not([target])"):void 0},r.prototype.getVisitableLocationForLink=function(e){var r;return r=new t.Location(e.getAttribute("href")),this.locationIsVisitable(r)?r:void 0},r.prototype.getActionForLink=function(t){var e;return null!=(e=t.getAttribute("data-turbolinks-action"))?e:"advance"},r.prototype.nodeIsVisitable=function(e){var r;return(r=t.closest(e,"[data-turbolinks]"))?"false"!==r.getAttribute("data-turbolinks"):!0},r.prototype.locationIsVisitable=function(t){return t.isPrefixedBy(this.view.getRootLocation())&&t.isHTML()},r.prototype.getCurrentRestorationData=function(){return this.getRestorationDataForIdentifier(this.restorationIdentifier)},r.prototype.getRestorationDataForIdentifier=function(t){var e;return null!=(e=this.restorationData)[t]?e[t]:e[t]={}},r}()}.call(this),function(){var e,r,n;t.start=function(){return r()?(null==t.controller&&(t.controller=e()),t.controller.start()):void 0},r=function(){return null==window.Turbolinks&&(window.Turbolinks=t),n()},e=function(){var e;return e=new t.Controller,e.adapter=new t.BrowserAdapter(e),e},n=function(){return window.Turbolinks===t},n()&&t.start()}.call(this)}).call(this),"object"==typeof module&&module.exports?module.exports=t:"function"==typeof define&&define.amd&&define(t)}).call(this);
+
+;
+
+(function() {
+  (function() {
+    (function() {
+      this.Turbolinks = {
+        supported: (function() {
+          return (window.history.pushState != null) && (window.requestAnimationFrame != null) && (window.addEventListener != null);
+        })(),
+        visit: function(location, options) {
+          return Turbolinks.controller.visit(location, options);
+        },
+        clearCache: function() {
+          return Turbolinks.controller.clearCache();
+        }
+      };
+
+    }).call(this);
+  }).call(this);
+
+  var Turbolinks = this.Turbolinks;
+
+  (function() {
+    (function() {
+      var closest, match;
+
+      Turbolinks.copyObject = function(object) {
+        var key, result, value;
+        result = {};
+        for (key in object) {
+          value = object[key];
+          result[key] = value;
+        }
+        return result;
+      };
+
+      Turbolinks.closest = function(element, selector) {
+        return closest.call(element, selector);
+      };
+
+      closest = (function() {
+        var html, ref;
+        html = document.documentElement;
+        return (ref = html.closest) != null ? ref : function(selector) {
+          var node;
+          node = this;
+          while (node) {
+            if (node.nodeType === Node.ELEMENT_NODE && match.call(node, selector)) {
+              return node;
+            }
+            node = node.parentNode;
+          }
+        };
+      })();
+
+      Turbolinks.defer = function(callback) {
+        return setTimeout(callback, 1);
+      };
+
+      Turbolinks.dispatch = function(eventName, arg) {
+        var cancelable, data, event, ref, target;
+        ref = arg != null ? arg : {}, target = ref.target, cancelable = ref.cancelable, data = ref.data;
+        event = document.createEvent("Events");
+        event.initEvent(eventName, true, cancelable === true);
+        event.data = data != null ? data : {};
+        (target != null ? target : document).dispatchEvent(event);
+        return event;
+      };
+
+      Turbolinks.match = function(element, selector) {
+        return match.call(element, selector);
+      };
+
+      match = (function() {
+        var html, ref, ref1, ref2;
+        html = document.documentElement;
+        return (ref = (ref1 = (ref2 = html.matchesSelector) != null ? ref2 : html.webkitMatchesSelector) != null ? ref1 : html.msMatchesSelector) != null ? ref : html.mozMatchesSelector;
+      })();
+
+      Turbolinks.uuid = function() {
+        var i, j, result;
+        result = "";
+        for (i = j = 1; j <= 36; i = ++j) {
+          if (i === 9 || i === 14 || i === 19 || i === 24) {
+            result += "-";
+          } else if (i === 15) {
+            result += "4";
+          } else if (i === 20) {
+            result += (Math.floor(Math.random() * 4) + 8).toString(16);
+          } else {
+            result += Math.floor(Math.random() * 15).toString(16);
+          }
+        }
+        return result;
+      };
+
+    }).call(this);
+    (function() {
+      Turbolinks.Location = (function() {
+        var addTrailingSlash, getPrefixURL, stringEndsWith, stringStartsWith;
+
+        Location.wrap = function(value) {
+          if (value instanceof this) {
+            return value;
+          } else {
+            return new this(value);
+          }
+        };
+
+        function Location(url) {
+          var anchorLength, linkWithAnchor;
+          if (url == null) {
+            url = "";
+          }
+          linkWithAnchor = document.createElement("a");
+          linkWithAnchor.href = url.toString();
+          this.absoluteURL = linkWithAnchor.href;
+          anchorLength = linkWithAnchor.hash.length;
+          if (anchorLength < 2) {
+            this.requestURL = this.absoluteURL;
+          } else {
+            this.requestURL = this.absoluteURL.slice(0, -anchorLength);
+            this.anchor = linkWithAnchor.hash.slice(1);
+          }
+        }
+
+        Location.prototype.getOrigin = function() {
+          return this.absoluteURL.split("/", 3).join("/");
+        };
+
+        Location.prototype.getPath = function() {
+          var ref, ref1;
+          return (ref = (ref1 = this.absoluteURL.match(/\/\/[^\/]*(\/[^?;]*)/)) != null ? ref1[1] : void 0) != null ? ref : "/";
+        };
+
+        Location.prototype.getPathComponents = function() {
+          return this.getPath().split("/").slice(1);
+        };
+
+        Location.prototype.getLastPathComponent = function() {
+          return this.getPathComponents().slice(-1)[0];
+        };
+
+        Location.prototype.getExtension = function() {
+          var ref, ref1;
+          return (ref = (ref1 = this.getLastPathComponent().match(/\.[^.]*$/)) != null ? ref1[0] : void 0) != null ? ref : "";
+        };
+
+        Location.prototype.isHTML = function() {
+          return this.getExtension().match(/^(?:|\.(?:htm|html|xhtml))$/);
+        };
+
+        Location.prototype.isPrefixedBy = function(location) {
+          var prefixURL;
+          prefixURL = getPrefixURL(location);
+          return this.isEqualTo(location) || stringStartsWith(this.absoluteURL, prefixURL);
+        };
+
+        Location.prototype.isEqualTo = function(location) {
+          return this.absoluteURL === (location != null ? location.absoluteURL : void 0);
+        };
+
+        Location.prototype.toCacheKey = function() {
+          return this.requestURL;
+        };
+
+        Location.prototype.toJSON = function() {
+          return this.absoluteURL;
+        };
+
+        Location.prototype.toString = function() {
+          return this.absoluteURL;
+        };
+
+        Location.prototype.valueOf = function() {
+          return this.absoluteURL;
+        };
+
+        getPrefixURL = function(location) {
+          return addTrailingSlash(location.getOrigin() + location.getPath());
+        };
+
+        addTrailingSlash = function(url) {
+          if (stringEndsWith(url, "/")) {
+            return url;
+          } else {
+            return url + "/";
+          }
+        };
+
+        stringStartsWith = function(string, prefix) {
+          return string.slice(0, prefix.length) === prefix;
+        };
+
+        stringEndsWith = function(string, suffix) {
+          return string.slice(-suffix.length) === suffix;
+        };
+
+        return Location;
+
+      })();
+
+    }).call(this);
+    (function() {
+      var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+      Turbolinks.HttpRequest = (function() {
+        HttpRequest.NETWORK_FAILURE = 0;
+
+        HttpRequest.TIMEOUT_FAILURE = -1;
+
+        HttpRequest.timeout = 60;
+
+        function HttpRequest(delegate, location, referrer, xhr) {
+          this.delegate = delegate;
+          this.requestCanceled = bind(this.requestCanceled, this);
+          this.requestTimedOut = bind(this.requestTimedOut, this);
+          this.requestFailed = bind(this.requestFailed, this);
+          this.requestLoaded = bind(this.requestLoaded, this);
+          this.requestProgressed = bind(this.requestProgressed, this);
+          this.url = Turbolinks.Location.wrap(location).requestURL;
+          this.referrer = Turbolinks.Location.wrap(referrer).absoluteURL;
+          if (xhr) {
+            this.xhr = xhr;
+            this.attachXHR();
+          } else {
+            this.createXHR();
+          }
+        }
+
+        HttpRequest.prototype.send = function() {
+          var base;
+          if (this.xhr && !this.sent) {
+            this.notifyApplicationBeforeRequestStart();
+            this.setProgress(0);
+            this.sent = true;
+            if (this.xhr.readyState !== 4) {
+              this.xhr.send();
+            }
+            if (typeof (base = this.delegate).requestStarted === "function") {
+              base.requestStarted();
+            }
+            if (this.xhr.readyState === 4) {
+              return this.requestLoaded();
+            }
+          }
+        };
+
+        HttpRequest.prototype.cancel = function() {
+          if (this.xhr && this.sent) {
+            return this.xhr.abort();
+          }
+        };
+
+        HttpRequest.prototype.requestProgressed = function(event) {
+          if (event.lengthComputable) {
+            return this.setProgress(event.loaded / event.total);
+          }
+        };
+
+        HttpRequest.prototype.requestLoaded = function() {
+          return this.endRequest((function(_this) {
+            return function() {
+              var ref;
+              if ((200 <= (ref = _this.xhr.status) && ref < 300)) {
+                return _this.delegate.requestCompletedWithResponse(_this.xhr.responseText, _this.xhr.getResponseHeader("Turbolinks-Location"));
+              } else {
+                _this.failed = true;
+                return _this.delegate.requestFailedWithStatusCode(_this.xhr.status, _this.xhr.responseText);
+              }
+            };
+          })(this));
+        };
+
+        HttpRequest.prototype.requestFailed = function() {
+          return this.endRequest((function(_this) {
+            return function() {
+              _this.failed = true;
+              return _this.delegate.requestFailedWithStatusCode(_this.constructor.NETWORK_FAILURE);
+            };
+          })(this));
+        };
+
+        HttpRequest.prototype.requestTimedOut = function() {
+          return this.endRequest((function(_this) {
+            return function() {
+              _this.failed = true;
+              return _this.delegate.requestFailedWithStatusCode(_this.constructor.TIMEOUT_FAILURE);
+            };
+          })(this));
+        };
+
+        HttpRequest.prototype.requestCanceled = function() {
+          return this.endRequest();
+        };
+
+        HttpRequest.prototype.notifyApplicationBeforeRequestStart = function() {
+          return Turbolinks.dispatch("turbolinks:request-start", {
+            data: {
+              url: this.url,
+              xhr: this.xhr
+            }
+          });
+        };
+
+        HttpRequest.prototype.notifyApplicationAfterRequestEnd = function() {
+          return Turbolinks.dispatch("turbolinks:request-end", {
+            data: {
+              url: this.url,
+              xhr: this.xhr
+            }
+          });
+        };
+
+        HttpRequest.prototype.createXHR = function() {
+          this.xhr = new XMLHttpRequest;
+          this.xhr.open("GET", this.url, true);
+          this.xhr.timeout = this.constructor.timeout * 1000;
+          this.xhr.setRequestHeader("Accept", "text/html, application/xhtml+xml");
+          this.xhr.setRequestHeader("Turbolinks-Referrer", this.referrer);
+          return this.attachXHR();
+        };
+
+        HttpRequest.prototype.attachXHR = function() {
+          this.xhr.onprogress = this.requestProgressed;
+          this.xhr.onload = this.requestLoaded;
+          this.xhr.onerror = this.requestFailed;
+          this.xhr.ontimeout = this.requestTimedOut;
+          return this.xhr.onabort = this.requestCanceled;
+        };
+
+        HttpRequest.prototype.endRequest = function(callback) {
+          if (this.xhr) {
+            this.notifyApplicationAfterRequestEnd();
+            if (callback != null) {
+              callback.call(this);
+            }
+            return this.destroy();
+          }
+        };
+
+        HttpRequest.prototype.setProgress = function(progress) {
+          var base;
+          this.progress = progress;
+          return typeof (base = this.delegate).requestProgressed === "function" ? base.requestProgressed(this.progress) : void 0;
+        };
+
+        HttpRequest.prototype.destroy = function() {
+          var base;
+          this.setProgress(1);
+          if (typeof (base = this.delegate).requestFinished === "function") {
+            base.requestFinished();
+          }
+          this.delegate = null;
+          return this.xhr = null;
+        };
+
+        return HttpRequest;
+
+      })();
+
+    }).call(this);
+    (function() {
+      var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+      Turbolinks.ProgressBar = (function() {
+        var ANIMATION_DURATION;
+
+        ANIMATION_DURATION = 300;
+
+        ProgressBar.defaultCSS = ".turbolinks-progress-bar {\n  position: fixed;\n  display: block;\n  top: 0;\n  left: 0;\n  height: 3px;\n  background: #0076ff;\n  z-index: 9999;\n  transition: width " + ANIMATION_DURATION + "ms ease-out, opacity " + (ANIMATION_DURATION / 2) + "ms " + (ANIMATION_DURATION / 2) + "ms ease-in;\n  transform: translate3d(0, 0, 0);\n}";
+
+        function ProgressBar() {
+          this.trickle = bind(this.trickle, this);
+          this.stylesheetElement = this.createStylesheetElement();
+          this.progressElement = this.createProgressElement();
+        }
+
+        ProgressBar.prototype.show = function() {
+          if (!this.visible) {
+            this.visible = true;
+            this.installStylesheetElement();
+            this.installProgressElement();
+            return this.startTrickling();
+          }
+        };
+
+        ProgressBar.prototype.hide = function() {
+          if (this.visible && !this.hiding) {
+            this.hiding = true;
+            return this.fadeProgressElement((function(_this) {
+              return function() {
+                _this.uninstallProgressElement();
+                _this.stopTrickling();
+                _this.visible = false;
+                return _this.hiding = false;
+              };
+            })(this));
+          }
+        };
+
+        ProgressBar.prototype.setValue = function(value) {
+          this.value = value;
+          return this.refresh();
+        };
+
+        ProgressBar.prototype.installStylesheetElement = function() {
+          return document.head.insertBefore(this.stylesheetElement, document.head.firstChild);
+        };
+
+        ProgressBar.prototype.installProgressElement = function() {
+          this.progressElement.style.width = 0;
+          this.progressElement.style.opacity = 1;
+          document.documentElement.insertBefore(this.progressElement, document.body);
+          return this.refresh();
+        };
+
+        ProgressBar.prototype.fadeProgressElement = function(callback) {
+          this.progressElement.style.opacity = 0;
+          return setTimeout(callback, ANIMATION_DURATION * 1.5);
+        };
+
+        ProgressBar.prototype.uninstallProgressElement = function() {
+          if (this.progressElement.parentNode) {
+            return document.documentElement.removeChild(this.progressElement);
+          }
+        };
+
+        ProgressBar.prototype.startTrickling = function() {
+          return this.trickleInterval != null ? this.trickleInterval : this.trickleInterval = setInterval(this.trickle, ANIMATION_DURATION);
+        };
+
+        ProgressBar.prototype.stopTrickling = function() {
+          clearInterval(this.trickleInterval);
+          return this.trickleInterval = null;
+        };
+
+        ProgressBar.prototype.trickle = function() {
+          return this.setValue(this.value + Math.random() / 100);
+        };
+
+        ProgressBar.prototype.refresh = function() {
+          return requestAnimationFrame((function(_this) {
+            return function() {
+              return _this.progressElement.style.width = (10 + (_this.value * 90)) + "%";
+            };
+          })(this));
+        };
+
+        ProgressBar.prototype.createStylesheetElement = function() {
+          var element;
+          element = document.createElement("style");
+          element.type = "text/css";
+          element.textContent = this.constructor.defaultCSS;
+          return element;
+        };
+
+        ProgressBar.prototype.createProgressElement = function() {
+          var element;
+          element = document.createElement("div");
+          element.className = "turbolinks-progress-bar";
+          return element;
+        };
+
+        return ProgressBar;
+
+      })();
+
+    }).call(this);
+    (function() {
+      var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+      Turbolinks.BrowserAdapter = (function() {
+        var NETWORK_FAILURE, PROGRESS_BAR_DELAY, TIMEOUT_FAILURE, ref;
+
+        ref = Turbolinks.HttpRequest, NETWORK_FAILURE = ref.NETWORK_FAILURE, TIMEOUT_FAILURE = ref.TIMEOUT_FAILURE;
+
+        PROGRESS_BAR_DELAY = 500;
+
+        function BrowserAdapter(controller) {
+          this.controller = controller;
+          this.showProgressBar = bind(this.showProgressBar, this);
+          this.progressBar = new Turbolinks.ProgressBar;
+        }
+
+        BrowserAdapter.prototype.visitProposedToLocationWithAction = function(location, action) {
+          return this.controller.startVisitToLocationWithAction(location, action);
+        };
+
+        BrowserAdapter.prototype.visitStarted = function(visit) {
+          visit.issueRequest();
+          visit.changeHistory();
+          return visit.loadCachedSnapshot();
+        };
+
+        BrowserAdapter.prototype.visitRequestStarted = function(visit) {
+          this.progressBar.setValue(0);
+          if (visit.hasCachedSnapshot() || visit.action !== "restore") {
+            return this.showProgressBarAfterDelay();
+          } else {
+            return this.showProgressBar();
+          }
+        };
+
+        BrowserAdapter.prototype.visitRequestProgressed = function(visit) {
+          return this.progressBar.setValue(visit.progress);
+        };
+
+        BrowserAdapter.prototype.visitRequestCompleted = function(visit) {
+          return visit.loadResponse();
+        };
+
+        BrowserAdapter.prototype.visitRequestFailedWithStatusCode = function(visit, statusCode) {
+          switch (statusCode) {
+            case NETWORK_FAILURE:
+            case TIMEOUT_FAILURE:
+              return this.reload();
+            default:
+              return visit.loadResponse();
+          }
+        };
+
+        BrowserAdapter.prototype.visitRequestFinished = function(visit) {
+          return this.hideProgressBar();
+        };
+
+        BrowserAdapter.prototype.visitCompleted = function(visit) {
+          return visit.followRedirect();
+        };
+
+        BrowserAdapter.prototype.pageInvalidated = function() {
+          return this.reload();
+        };
+
+        BrowserAdapter.prototype.showProgressBarAfterDelay = function() {
+          return this.progressBarTimeout = setTimeout(this.showProgressBar, PROGRESS_BAR_DELAY);
+        };
+
+        BrowserAdapter.prototype.showProgressBar = function() {
+          return this.progressBar.show();
+        };
+
+        BrowserAdapter.prototype.hideProgressBar = function() {
+          this.progressBar.hide();
+          return clearTimeout(this.progressBarTimeout);
+        };
+
+        BrowserAdapter.prototype.reload = function() {
+          return window.location.reload();
+        };
+
+        return BrowserAdapter;
+
+      })();
+
+    }).call(this);
+    (function() {
+      var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+      Turbolinks.History = (function() {
+        function History(delegate) {
+          this.delegate = delegate;
+          this.onPageLoad = bind(this.onPageLoad, this);
+          this.onPopState = bind(this.onPopState, this);
+        }
+
+        History.prototype.start = function() {
+          if (!this.started) {
+            addEventListener("popstate", this.onPopState, false);
+            addEventListener("load", this.onPageLoad, false);
+            return this.started = true;
+          }
+        };
+
+        History.prototype.stop = function() {
+          if (this.started) {
+            removeEventListener("popstate", this.onPopState, false);
+            removeEventListener("load", this.onPageLoad, false);
+            return this.started = false;
+          }
+        };
+
+        History.prototype.push = function(location, restorationIdentifier) {
+          location = Turbolinks.Location.wrap(location);
+          return this.update("push", location, restorationIdentifier);
+        };
+
+        History.prototype.replace = function(location, restorationIdentifier) {
+          location = Turbolinks.Location.wrap(location);
+          return this.update("replace", location, restorationIdentifier);
+        };
+
+        History.prototype.onPopState = function(event) {
+          var location, ref, restorationIdentifier, turbolinks;
+          if (this.shouldHandlePopState()) {
+            if (turbolinks = (ref = event.state) != null ? ref.turbolinks : void 0) {
+              location = Turbolinks.Location.wrap(window.location);
+              restorationIdentifier = turbolinks.restorationIdentifier;
+              return this.delegate.historyPoppedToLocationWithRestorationIdentifier(location, restorationIdentifier);
+            }
+          }
+        };
+
+        History.prototype.onPageLoad = function(event) {
+          return Turbolinks.defer((function(_this) {
+            return function() {
+              return _this.pageLoaded = true;
+            };
+          })(this));
+        };
+
+        History.prototype.shouldHandlePopState = function() {
+          return this.pageIsLoaded();
+        };
+
+        History.prototype.pageIsLoaded = function() {
+          return this.pageLoaded || document.readyState === "complete";
+        };
+
+        History.prototype.update = function(method, location, restorationIdentifier) {
+          var state;
+          state = {
+            turbolinks: {
+              restorationIdentifier: restorationIdentifier
+            }
+          };
+          return history[method + "State"](state, null, location);
+        };
+
+        return History;
+
+      })();
+
+    }).call(this);
+    (function() {
+      Turbolinks.Snapshot = (function() {
+        Snapshot.wrap = function(value) {
+          if (value instanceof this) {
+            return value;
+          } else {
+            return this.fromHTML(value);
+          }
+        };
+
+        Snapshot.fromHTML = function(html) {
+          var element;
+          element = document.createElement("html");
+          element.innerHTML = html;
+          return this.fromElement(element);
+        };
+
+        Snapshot.fromElement = function(element) {
+          return new this({
+            head: element.querySelector("head"),
+            body: element.querySelector("body")
+          });
+        };
+
+        function Snapshot(arg) {
+          var body, head;
+          head = arg.head, body = arg.body;
+          this.head = head != null ? head : document.createElement("head");
+          this.body = body != null ? body : document.createElement("body");
+        }
+
+        Snapshot.prototype.clone = function() {
+          return new Snapshot({
+            head: this.head.cloneNode(true),
+            body: this.body.cloneNode(true)
+          });
+        };
+
+        Snapshot.prototype.getRootLocation = function() {
+          var ref, root;
+          root = (ref = this.getSetting("root")) != null ? ref : "/";
+          return new Turbolinks.Location(root);
+        };
+
+        Snapshot.prototype.getCacheControlValue = function() {
+          return this.getSetting("cache-control");
+        };
+
+        Snapshot.prototype.hasAnchor = function(anchor) {
+          try {
+            return this.body.querySelector("[id='" + anchor + "']") != null;
+          } catch (_error) {}
+        };
+
+        Snapshot.prototype.isPreviewable = function() {
+          return this.getCacheControlValue() !== "no-preview";
+        };
+
+        Snapshot.prototype.isCacheable = function() {
+          return this.getCacheControlValue() !== "no-cache";
+        };
+
+        Snapshot.prototype.getSetting = function(name) {
+          var element, ref;
+          ref = this.head.querySelectorAll("meta[name='turbolinks-" + name + "']"), element = ref[ref.length - 1];
+          return element != null ? element.getAttribute("content") : void 0;
+        };
+
+        return Snapshot;
+
+      })();
+
+    }).call(this);
+    (function() {
+      var slice = [].slice;
+
+      Turbolinks.Renderer = (function() {
+        var copyElementAttributes;
+
+        function Renderer() {}
+
+        Renderer.render = function() {
+          var args, callback, delegate, renderer;
+          delegate = arguments[0], callback = arguments[1], args = 3 <= arguments.length ? slice.call(arguments, 2) : [];
+          renderer = (function(func, args, ctor) {
+            ctor.prototype = func.prototype;
+            var child = new ctor, result = func.apply(child, args);
+            return Object(result) === result ? result : child;
+          })(this, args, function(){});
+          renderer.delegate = delegate;
+          renderer.render(callback);
+          return renderer;
+        };
+
+        Renderer.prototype.renderView = function(callback) {
+          this.delegate.viewWillRender(this.newBody);
+          callback();
+          return this.delegate.viewRendered(this.newBody);
+        };
+
+        Renderer.prototype.invalidateView = function() {
+          return this.delegate.viewInvalidated();
+        };
+
+        Renderer.prototype.createScriptElement = function(element) {
+          var createdScriptElement;
+          if (element.getAttribute("data-turbolinks-eval") === "false") {
+            return element;
+          } else {
+            createdScriptElement = document.createElement("script");
+            createdScriptElement.textContent = element.textContent;
+            copyElementAttributes(createdScriptElement, element);
+            return createdScriptElement;
+          }
+        };
+
+        copyElementAttributes = function(destinationElement, sourceElement) {
+          var i, len, name, ref, ref1, results, value;
+          ref = sourceElement.attributes;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            ref1 = ref[i], name = ref1.name, value = ref1.value;
+            results.push(destinationElement.setAttribute(name, value));
+          }
+          return results;
+        };
+
+        return Renderer;
+
+      })();
+
+    }).call(this);
+    (function() {
+      Turbolinks.HeadDetails = (function() {
+        var elementIsScript, elementIsStylesheet, elementIsTracked, elementType;
+
+        function HeadDetails(element1) {
+          var base, data, element, i, key, len, ref;
+          this.element = element1;
+          this.elements = {};
+          ref = this.element.childNodes;
+          for (i = 0, len = ref.length; i < len; i++) {
+            element = ref[i];
+            if (!(element.nodeType === Node.ELEMENT_NODE)) {
+              continue;
+            }
+            key = element.outerHTML;
+            data = (base = this.elements)[key] != null ? base[key] : base[key] = {
+              type: elementType(element),
+              tracked: elementIsTracked(element),
+              elements: []
+            };
+            data.elements.push(element);
+          }
+        }
+
+        HeadDetails.prototype.hasElementWithKey = function(key) {
+          return key in this.elements;
+        };
+
+        HeadDetails.prototype.getTrackedElementSignature = function() {
+          var key, tracked;
+          return ((function() {
+            var ref, results;
+            ref = this.elements;
+            results = [];
+            for (key in ref) {
+              tracked = ref[key].tracked;
+              if (tracked) {
+                results.push(key);
+              }
+            }
+            return results;
+          }).call(this)).join("");
+        };
+
+        HeadDetails.prototype.getScriptElementsNotInDetails = function(headDetails) {
+          return this.getElementsMatchingTypeNotInDetails("script", headDetails);
+        };
+
+        HeadDetails.prototype.getStylesheetElementsNotInDetails = function(headDetails) {
+          return this.getElementsMatchingTypeNotInDetails("stylesheet", headDetails);
+        };
+
+        HeadDetails.prototype.getElementsMatchingTypeNotInDetails = function(matchedType, headDetails) {
+          var elements, key, ref, ref1, results, type;
+          ref = this.elements;
+          results = [];
+          for (key in ref) {
+            ref1 = ref[key], type = ref1.type, elements = ref1.elements;
+            if (type === matchedType && !headDetails.hasElementWithKey(key)) {
+              results.push(elements[0]);
+            }
+          }
+          return results;
+        };
+
+        HeadDetails.prototype.getProvisionalElements = function() {
+          var elements, key, provisionalElements, ref, ref1, tracked, type;
+          provisionalElements = [];
+          ref = this.elements;
+          for (key in ref) {
+            ref1 = ref[key], type = ref1.type, tracked = ref1.tracked, elements = ref1.elements;
+            if ((type == null) && !tracked) {
+              provisionalElements.push.apply(provisionalElements, elements);
+            } else if (elements.length > 1) {
+              provisionalElements.push.apply(provisionalElements, elements.slice(1));
+            }
+          }
+          return provisionalElements;
+        };
+
+        elementType = function(element) {
+          if (elementIsScript(element)) {
+            return "script";
+          } else if (elementIsStylesheet(element)) {
+            return "stylesheet";
+          }
+        };
+
+        elementIsTracked = function(element) {
+          return element.getAttribute("data-turbolinks-track") === "reload";
+        };
+
+        elementIsScript = function(element) {
+          var tagName;
+          tagName = element.tagName.toLowerCase();
+          return tagName === "script";
+        };
+
+        elementIsStylesheet = function(element) {
+          var tagName;
+          tagName = element.tagName.toLowerCase();
+          return tagName === "style" || (tagName === "link" && element.getAttribute("rel") === "stylesheet");
+        };
+
+        return HeadDetails;
+
+      })();
+
+    }).call(this);
+    (function() {
+      var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+        hasProp = {}.hasOwnProperty;
+
+      Turbolinks.SnapshotRenderer = (function(superClass) {
+        extend(SnapshotRenderer, superClass);
+
+        function SnapshotRenderer(currentSnapshot, newSnapshot) {
+          this.currentSnapshot = currentSnapshot;
+          this.newSnapshot = newSnapshot;
+          this.currentHeadDetails = new Turbolinks.HeadDetails(this.currentSnapshot.head);
+          this.newHeadDetails = new Turbolinks.HeadDetails(this.newSnapshot.head);
+          this.newBody = this.newSnapshot.body;
+        }
+
+        SnapshotRenderer.prototype.render = function(callback) {
+          if (this.trackedElementsAreIdentical()) {
+            this.mergeHead();
+            return this.renderView((function(_this) {
+              return function() {
+                _this.replaceBody();
+                _this.focusFirstAutofocusableElement();
+                return callback();
+              };
+            })(this));
+          } else {
+            return this.invalidateView();
+          }
+        };
+
+        SnapshotRenderer.prototype.mergeHead = function() {
+          this.copyNewHeadStylesheetElements();
+          this.copyNewHeadScriptElements();
+          this.removeCurrentHeadProvisionalElements();
+          return this.copyNewHeadProvisionalElements();
+        };
+
+        SnapshotRenderer.prototype.replaceBody = function() {
+          this.activateBodyScriptElements();
+          this.importBodyPermanentElements();
+          return this.assignNewBody();
+        };
+
+        SnapshotRenderer.prototype.trackedElementsAreIdentical = function() {
+          return this.currentHeadDetails.getTrackedElementSignature() === this.newHeadDetails.getTrackedElementSignature();
+        };
+
+        SnapshotRenderer.prototype.copyNewHeadStylesheetElements = function() {
+          var element, i, len, ref, results;
+          ref = this.getNewHeadStylesheetElements();
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            element = ref[i];
+            results.push(document.head.appendChild(element));
+          }
+          return results;
+        };
+
+        SnapshotRenderer.prototype.copyNewHeadScriptElements = function() {
+          var element, i, len, ref, results;
+          ref = this.getNewHeadScriptElements();
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            element = ref[i];
+            results.push(document.head.appendChild(this.createScriptElement(element)));
+          }
+          return results;
+        };
+
+        SnapshotRenderer.prototype.removeCurrentHeadProvisionalElements = function() {
+          var element, i, len, ref, results;
+          ref = this.getCurrentHeadProvisionalElements();
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            element = ref[i];
+            results.push(document.head.removeChild(element));
+          }
+          return results;
+        };
+
+        SnapshotRenderer.prototype.copyNewHeadProvisionalElements = function() {
+          var element, i, len, ref, results;
+          ref = this.getNewHeadProvisionalElements();
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            element = ref[i];
+            results.push(document.head.appendChild(element));
+          }
+          return results;
+        };
+
+        SnapshotRenderer.prototype.importBodyPermanentElements = function() {
+          var element, i, len, ref, replaceableElement, results;
+          ref = this.getNewBodyPermanentElements();
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            replaceableElement = ref[i];
+            if (element = this.findCurrentBodyPermanentElement(replaceableElement)) {
+              results.push(replaceableElement.parentNode.replaceChild(element, replaceableElement));
+            } else {
+              results.push(void 0);
+            }
+          }
+          return results;
+        };
+
+        SnapshotRenderer.prototype.activateBodyScriptElements = function() {
+          var element, i, len, ref, replaceableElement, results;
+          ref = this.getNewBodyScriptElements();
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            replaceableElement = ref[i];
+            element = this.createScriptElement(replaceableElement);
+            results.push(replaceableElement.parentNode.replaceChild(element, replaceableElement));
+          }
+          return results;
+        };
+
+        SnapshotRenderer.prototype.assignNewBody = function() {
+          return document.body = this.newBody;
+        };
+
+        SnapshotRenderer.prototype.focusFirstAutofocusableElement = function() {
+          var ref;
+          return (ref = this.findFirstAutofocusableElement()) != null ? ref.focus() : void 0;
+        };
+
+        SnapshotRenderer.prototype.getNewHeadStylesheetElements = function() {
+          return this.newHeadDetails.getStylesheetElementsNotInDetails(this.currentHeadDetails);
+        };
+
+        SnapshotRenderer.prototype.getNewHeadScriptElements = function() {
+          return this.newHeadDetails.getScriptElementsNotInDetails(this.currentHeadDetails);
+        };
+
+        SnapshotRenderer.prototype.getCurrentHeadProvisionalElements = function() {
+          return this.currentHeadDetails.getProvisionalElements();
+        };
+
+        SnapshotRenderer.prototype.getNewHeadProvisionalElements = function() {
+          return this.newHeadDetails.getProvisionalElements();
+        };
+
+        SnapshotRenderer.prototype.getNewBodyPermanentElements = function() {
+          return this.newBody.querySelectorAll("[id][data-turbolinks-permanent]");
+        };
+
+        SnapshotRenderer.prototype.findCurrentBodyPermanentElement = function(element) {
+          return document.body.querySelector("#" + element.id + "[data-turbolinks-permanent]");
+        };
+
+        SnapshotRenderer.prototype.getNewBodyScriptElements = function() {
+          return this.newBody.querySelectorAll("script");
+        };
+
+        SnapshotRenderer.prototype.findFirstAutofocusableElement = function() {
+          return document.body.querySelector("[autofocus]");
+        };
+
+        return SnapshotRenderer;
+
+      })(Turbolinks.Renderer);
+
+    }).call(this);
+    (function() {
+      var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+        hasProp = {}.hasOwnProperty;
+
+      Turbolinks.ErrorRenderer = (function(superClass) {
+        extend(ErrorRenderer, superClass);
+
+        function ErrorRenderer(html) {
+          this.html = html;
+        }
+
+        ErrorRenderer.prototype.render = function(callback) {
+          return this.renderView((function(_this) {
+            return function() {
+              _this.replaceDocumentHTML();
+              _this.activateBodyScriptElements();
+              return callback();
+            };
+          })(this));
+        };
+
+        ErrorRenderer.prototype.replaceDocumentHTML = function() {
+          return document.documentElement.innerHTML = this.html;
+        };
+
+        ErrorRenderer.prototype.activateBodyScriptElements = function() {
+          var element, i, len, ref, replaceableElement, results;
+          ref = this.getScriptElements();
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            replaceableElement = ref[i];
+            element = this.createScriptElement(replaceableElement);
+            results.push(replaceableElement.parentNode.replaceChild(element, replaceableElement));
+          }
+          return results;
+        };
+
+        ErrorRenderer.prototype.getScriptElements = function() {
+          return document.documentElement.querySelectorAll("script");
+        };
+
+        return ErrorRenderer;
+
+      })(Turbolinks.Renderer);
+
+    }).call(this);
+    (function() {
+      Turbolinks.View = (function() {
+        function View(delegate) {
+          this.delegate = delegate;
+          this.element = document.documentElement;
+        }
+
+        View.prototype.getRootLocation = function() {
+          return this.getSnapshot().getRootLocation();
+        };
+
+        View.prototype.getSnapshot = function() {
+          return Turbolinks.Snapshot.fromElement(this.element);
+        };
+
+        View.prototype.render = function(arg, callback) {
+          var error, isPreview, snapshot;
+          snapshot = arg.snapshot, error = arg.error, isPreview = arg.isPreview;
+          this.markAsPreview(isPreview);
+          if (snapshot != null) {
+            return this.renderSnapshot(snapshot, callback);
+          } else {
+            return this.renderError(error, callback);
+          }
+        };
+
+        View.prototype.markAsPreview = function(isPreview) {
+          if (isPreview) {
+            return this.element.setAttribute("data-turbolinks-preview", "");
+          } else {
+            return this.element.removeAttribute("data-turbolinks-preview");
+          }
+        };
+
+        View.prototype.renderSnapshot = function(snapshot, callback) {
+          return Turbolinks.SnapshotRenderer.render(this.delegate, callback, this.getSnapshot(), Turbolinks.Snapshot.wrap(snapshot));
+        };
+
+        View.prototype.renderError = function(error, callback) {
+          return Turbolinks.ErrorRenderer.render(this.delegate, callback, error);
+        };
+
+        return View;
+
+      })();
+
+    }).call(this);
+    (function() {
+      var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+      Turbolinks.ScrollManager = (function() {
+        function ScrollManager(delegate) {
+          this.delegate = delegate;
+          this.onScroll = bind(this.onScroll, this);
+        }
+
+        ScrollManager.prototype.start = function() {
+          if (!this.started) {
+            addEventListener("scroll", this.onScroll, false);
+            this.onScroll();
+            return this.started = true;
+          }
+        };
+
+        ScrollManager.prototype.stop = function() {
+          if (this.started) {
+            removeEventListener("scroll", this.onScroll, false);
+            return this.started = false;
+          }
+        };
+
+        ScrollManager.prototype.scrollToElement = function(element) {
+          return element.scrollIntoView();
+        };
+
+        ScrollManager.prototype.scrollToPosition = function(arg) {
+          var x, y;
+          x = arg.x, y = arg.y;
+          return window.scrollTo(x, y);
+        };
+
+        ScrollManager.prototype.onScroll = function(event) {
+          return this.updatePosition({
+            x: window.pageXOffset,
+            y: window.pageYOffset
+          });
+        };
+
+        ScrollManager.prototype.updatePosition = function(position) {
+          var ref;
+          this.position = position;
+          return (ref = this.delegate) != null ? ref.scrollPositionChanged(this.position) : void 0;
+        };
+
+        return ScrollManager;
+
+      })();
+
+    }).call(this);
+    (function() {
+      Turbolinks.SnapshotCache = (function() {
+        var keyForLocation;
+
+        function SnapshotCache(size) {
+          this.size = size;
+          this.keys = [];
+          this.snapshots = {};
+        }
+
+        SnapshotCache.prototype.has = function(location) {
+          var key;
+          key = keyForLocation(location);
+          return key in this.snapshots;
+        };
+
+        SnapshotCache.prototype.get = function(location) {
+          var snapshot;
+          if (!this.has(location)) {
+            return;
+          }
+          snapshot = this.read(location);
+          this.touch(location);
+          return snapshot;
+        };
+
+        SnapshotCache.prototype.put = function(location, snapshot) {
+          this.write(location, snapshot);
+          this.touch(location);
+          return snapshot;
+        };
+
+        SnapshotCache.prototype.read = function(location) {
+          var key;
+          key = keyForLocation(location);
+          return this.snapshots[key];
+        };
+
+        SnapshotCache.prototype.write = function(location, snapshot) {
+          var key;
+          key = keyForLocation(location);
+          return this.snapshots[key] = snapshot;
+        };
+
+        SnapshotCache.prototype.touch = function(location) {
+          var index, key;
+          key = keyForLocation(location);
+          index = this.keys.indexOf(key);
+          if (index > -1) {
+            this.keys.splice(index, 1);
+          }
+          this.keys.unshift(key);
+          return this.trim();
+        };
+
+        SnapshotCache.prototype.trim = function() {
+          var i, key, len, ref, results;
+          ref = this.keys.splice(this.size);
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            key = ref[i];
+            results.push(delete this.snapshots[key]);
+          }
+          return results;
+        };
+
+        keyForLocation = function(location) {
+          return Turbolinks.Location.wrap(location).toCacheKey();
+        };
+
+        return SnapshotCache;
+
+      })();
+
+    }).call(this);
+    (function() {
+      var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+      Turbolinks.Visit = (function() {
+        var getHistoryMethodForAction;
+
+        function Visit(controller, location, action1) {
+          this.controller = controller;
+          this.action = action1;
+          this.performScroll = bind(this.performScroll, this);
+          this.identifier = Turbolinks.uuid();
+          this.location = Turbolinks.Location.wrap(location);
+          this.adapter = this.controller.adapter;
+          this.state = "initialized";
+          this.timingMetrics = {};
+        }
+
+        Visit.prototype.start = function() {
+          if (this.state === "initialized") {
+            this.recordTimingMetric("visitStart");
+            this.state = "started";
+            return this.adapter.visitStarted(this);
+          }
+        };
+
+        Visit.prototype.cancel = function() {
+          var ref;
+          if (this.state === "started") {
+            if ((ref = this.request) != null) {
+              ref.cancel();
+            }
+            this.cancelRender();
+            return this.state = "canceled";
+          }
+        };
+
+        Visit.prototype.complete = function() {
+          var base;
+          if (this.state === "started") {
+            this.recordTimingMetric("visitEnd");
+            this.state = "completed";
+            if (typeof (base = this.adapter).visitCompleted === "function") {
+              base.visitCompleted(this);
+            }
+            return this.controller.visitCompleted(this);
+          }
+        };
+
+        Visit.prototype.fail = function() {
+          var base;
+          if (this.state === "started") {
+            this.state = "failed";
+            return typeof (base = this.adapter).visitFailed === "function" ? base.visitFailed(this) : void 0;
+          }
+        };
+
+        Visit.prototype.changeHistory = function() {
+          var actionForHistory, method;
+          if (!this.historyChanged) {
+            actionForHistory = this.location.isEqualTo(this.referrer) ? "replace" : this.action;
+            method = getHistoryMethodForAction(actionForHistory);
+            this.controller[method](this.location, this.restorationIdentifier);
+            return this.historyChanged = true;
+          }
+        };
+
+        Visit.prototype.issueRequest = function() {
+          if (this.shouldIssueRequest()) {
+            this.progress = 0;
+            if (this.request == null) {
+              this.request = new Turbolinks.HttpRequest(this, this.location, this.referrer);
+            }
+            return this.request.send();
+          }
+        };
+
+        Visit.prototype.getCachedSnapshot = function() {
+          var snapshot;
+          if (snapshot = this.controller.getCachedSnapshotForLocation(this.location)) {
+            if ((this.location.anchor == null) || snapshot.hasAnchor(this.location.anchor)) {
+              if (this.action === "restore" || snapshot.isPreviewable()) {
+                return snapshot;
+              }
+            }
+          }
+        };
+
+        Visit.prototype.hasCachedSnapshot = function() {
+          return this.getCachedSnapshot() != null;
+        };
+
+        Visit.prototype.loadCachedSnapshot = function() {
+          var isPreview, snapshot;
+          if (snapshot = this.getCachedSnapshot()) {
+            isPreview = this.shouldIssueRequest();
+            return this.render(function() {
+              var base;
+              this.cacheSnapshot();
+              this.controller.render({
+                snapshot: snapshot,
+                isPreview: isPreview
+              }, this.performScroll);
+              if (typeof (base = this.adapter).visitRendered === "function") {
+                base.visitRendered(this);
+              }
+              if (!isPreview) {
+                return this.complete();
+              }
+            });
+          }
+        };
+
+        Visit.prototype.loadResponse = function() {
+          if (this.response != null) {
+            return this.render(function() {
+              var base, base1;
+              this.cacheSnapshot();
+              if (this.request.failed) {
+                this.controller.render({
+                  error: this.response
+                }, this.performScroll);
+                if (typeof (base = this.adapter).visitRendered === "function") {
+                  base.visitRendered(this);
+                }
+                return this.fail();
+              } else {
+                this.controller.render({
+                  snapshot: this.response
+                }, this.performScroll);
+                if (typeof (base1 = this.adapter).visitRendered === "function") {
+                  base1.visitRendered(this);
+                }
+                return this.complete();
+              }
+            });
+          }
+        };
+
+        Visit.prototype.followRedirect = function() {
+          if (this.redirectedToLocation && !this.followedRedirect) {
+            this.location = this.redirectedToLocation;
+            this.controller.replaceHistoryWithLocationAndRestorationIdentifier(this.redirectedToLocation, this.restorationIdentifier);
+            return this.followedRedirect = true;
+          }
+        };
+
+        Visit.prototype.requestStarted = function() {
+          var base;
+          this.recordTimingMetric("requestStart");
+          return typeof (base = this.adapter).visitRequestStarted === "function" ? base.visitRequestStarted(this) : void 0;
+        };
+
+        Visit.prototype.requestProgressed = function(progress) {
+          var base;
+          this.progress = progress;
+          return typeof (base = this.adapter).visitRequestProgressed === "function" ? base.visitRequestProgressed(this) : void 0;
+        };
+
+        Visit.prototype.requestCompletedWithResponse = function(response, redirectedToLocation) {
+          this.response = response;
+          if (redirectedToLocation != null) {
+            this.redirectedToLocation = Turbolinks.Location.wrap(redirectedToLocation);
+          }
+          return this.adapter.visitRequestCompleted(this);
+        };
+
+        Visit.prototype.requestFailedWithStatusCode = function(statusCode, response) {
+          this.response = response;
+          return this.adapter.visitRequestFailedWithStatusCode(this, statusCode);
+        };
+
+        Visit.prototype.requestFinished = function() {
+          var base;
+          this.recordTimingMetric("requestEnd");
+          return typeof (base = this.adapter).visitRequestFinished === "function" ? base.visitRequestFinished(this) : void 0;
+        };
+
+        Visit.prototype.performScroll = function() {
+          if (!this.scrolled) {
+            if (this.action === "restore") {
+              this.scrollToRestoredPosition() || this.scrollToTop();
+            } else {
+              this.scrollToAnchor() || this.scrollToTop();
+            }
+            return this.scrolled = true;
+          }
+        };
+
+        Visit.prototype.scrollToRestoredPosition = function() {
+          var position, ref;
+          position = (ref = this.restorationData) != null ? ref.scrollPosition : void 0;
+          if (position != null) {
+            this.controller.scrollToPosition(position);
+            return true;
+          }
+        };
+
+        Visit.prototype.scrollToAnchor = function() {
+          if (this.location.anchor != null) {
+            this.controller.scrollToAnchor(this.location.anchor);
+            return true;
+          }
+        };
+
+        Visit.prototype.scrollToTop = function() {
+          return this.controller.scrollToPosition({
+            x: 0,
+            y: 0
+          });
+        };
+
+        Visit.prototype.recordTimingMetric = function(name) {
+          var base;
+          return (base = this.timingMetrics)[name] != null ? base[name] : base[name] = new Date().getTime();
+        };
+
+        Visit.prototype.getTimingMetrics = function() {
+          return Turbolinks.copyObject(this.timingMetrics);
+        };
+
+        getHistoryMethodForAction = function(action) {
+          switch (action) {
+            case "replace":
+              return "replaceHistoryWithLocationAndRestorationIdentifier";
+            case "advance":
+            case "restore":
+              return "pushHistoryWithLocationAndRestorationIdentifier";
+          }
+        };
+
+        Visit.prototype.shouldIssueRequest = function() {
+          if (this.action === "restore") {
+            return !this.hasCachedSnapshot();
+          } else {
+            return true;
+          }
+        };
+
+        Visit.prototype.cacheSnapshot = function() {
+          if (!this.snapshotCached) {
+            this.controller.cacheSnapshot();
+            return this.snapshotCached = true;
+          }
+        };
+
+        Visit.prototype.render = function(callback) {
+          this.cancelRender();
+          return this.frame = requestAnimationFrame((function(_this) {
+            return function() {
+              _this.frame = null;
+              return callback.call(_this);
+            };
+          })(this));
+        };
+
+        Visit.prototype.cancelRender = function() {
+          if (this.frame) {
+            return cancelAnimationFrame(this.frame);
+          }
+        };
+
+        return Visit;
+
+      })();
+
+    }).call(this);
+    (function() {
+      var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+      Turbolinks.Controller = (function() {
+        function Controller() {
+          this.clickBubbled = bind(this.clickBubbled, this);
+          this.clickCaptured = bind(this.clickCaptured, this);
+          this.pageLoaded = bind(this.pageLoaded, this);
+          this.history = new Turbolinks.History(this);
+          this.view = new Turbolinks.View(this);
+          this.scrollManager = new Turbolinks.ScrollManager(this);
+          this.restorationData = {};
+          this.clearCache();
+        }
+
+        Controller.prototype.start = function() {
+          if (Turbolinks.supported && !this.started) {
+            addEventListener("click", this.clickCaptured, true);
+            addEventListener("DOMContentLoaded", this.pageLoaded, false);
+            this.scrollManager.start();
+            this.startHistory();
+            this.started = true;
+            return this.enabled = true;
+          }
+        };
+
+        Controller.prototype.disable = function() {
+          return this.enabled = false;
+        };
+
+        Controller.prototype.stop = function() {
+          if (this.started) {
+            removeEventListener("click", this.clickCaptured, true);
+            removeEventListener("DOMContentLoaded", this.pageLoaded, false);
+            this.scrollManager.stop();
+            this.stopHistory();
+            return this.started = false;
+          }
+        };
+
+        Controller.prototype.clearCache = function() {
+          return this.cache = new Turbolinks.SnapshotCache(10);
+        };
+
+        Controller.prototype.visit = function(location, options) {
+          var action, ref;
+          if (options == null) {
+            options = {};
+          }
+          location = Turbolinks.Location.wrap(location);
+          if (this.applicationAllowsVisitingLocation(location)) {
+            if (this.locationIsVisitable(location)) {
+              action = (ref = options.action) != null ? ref : "advance";
+              return this.startVisitToLocationWithAction(location, action, options);
+            } else {
+              return window.location = location;
+            }
+          }
+        };
+
+        Controller.prototype.startVisitToLocationWithAction = function(location, action, properties) {
+          if (Turbolinks.supported) {
+            if (properties.restorationIdentifier) {
+              properties = copyObject(properties);
+              properties.restorationData = this.getRestorationDataForIdentifier(properties.restorationIdentifier);
+            }
+            return this.startVisit(location, action, properties);
+          } else {
+            return window.location = location;
+          }
+        };
+
+        Controller.prototype.startHistory = function() {
+          this.location = Turbolinks.Location.wrap(window.location);
+          this.restorationIdentifier = Turbolinks.uuid();
+          this.history.start();
+          return this.history.replace(this.location, this.restorationIdentifier);
+        };
+
+        Controller.prototype.stopHistory = function() {
+          return this.history.stop();
+        };
+
+        Controller.prototype.pushHistoryWithLocationAndRestorationIdentifier = function(location, restorationIdentifier1) {
+          this.restorationIdentifier = restorationIdentifier1;
+          this.location = Turbolinks.Location.wrap(location);
+          return this.history.push(this.location, this.restorationIdentifier);
+        };
+
+        Controller.prototype.replaceHistoryWithLocationAndRestorationIdentifier = function(location, restorationIdentifier1) {
+          this.restorationIdentifier = restorationIdentifier1;
+          this.location = Turbolinks.Location.wrap(location);
+          return this.history.replace(this.location, this.restorationIdentifier);
+        };
+
+        Controller.prototype.historyPoppedToLocationWithRestorationIdentifier = function(location, restorationIdentifier1) {
+          var restorationData;
+          this.restorationIdentifier = restorationIdentifier1;
+          if (this.enabled) {
+            restorationData = this.getRestorationDataForIdentifier(this.restorationIdentifier);
+            this.startVisit(location, "restore", {
+              restorationIdentifier: this.restorationIdentifier,
+              restorationData: restorationData,
+              historyChanged: true
+            });
+            return this.location = Turbolinks.Location.wrap(location);
+          } else {
+            return this.adapter.pageInvalidated();
+          }
+        };
+
+        Controller.prototype.getCachedSnapshotForLocation = function(location) {
+          var snapshot;
+          snapshot = this.cache.get(location);
+          if (snapshot) {
+            return snapshot.clone();
+          }
+        };
+
+        Controller.prototype.shouldCacheSnapshot = function() {
+          return this.view.getSnapshot().isCacheable();
+        };
+
+        Controller.prototype.cacheSnapshot = function() {
+          var snapshot;
+          if (this.shouldCacheSnapshot()) {
+            this.notifyApplicationBeforeCachingSnapshot();
+            snapshot = this.view.getSnapshot();
+            return this.cache.put(this.lastRenderedLocation, snapshot.clone());
+          }
+        };
+
+        Controller.prototype.scrollToAnchor = function(anchor) {
+          var element;
+          if (element = document.getElementById(anchor)) {
+            return this.scrollToElement(element);
+          } else {
+            return this.scrollToPosition({
+              x: 0,
+              y: 0
+            });
+          }
+        };
+
+        Controller.prototype.scrollToElement = function(element) {
+          return this.scrollManager.scrollToElement(element);
+        };
+
+        Controller.prototype.scrollToPosition = function(position) {
+          return this.scrollManager.scrollToPosition(position);
+        };
+
+        Controller.prototype.scrollPositionChanged = function(scrollPosition) {
+          var restorationData;
+          restorationData = this.getCurrentRestorationData();
+          return restorationData.scrollPosition = scrollPosition;
+        };
+
+        Controller.prototype.render = function(options, callback) {
+          return this.view.render(options, callback);
+        };
+
+        Controller.prototype.viewInvalidated = function() {
+          return this.adapter.pageInvalidated();
+        };
+
+        Controller.prototype.viewWillRender = function(newBody) {
+          return this.notifyApplicationBeforeRender(newBody);
+        };
+
+        Controller.prototype.viewRendered = function() {
+          this.lastRenderedLocation = this.currentVisit.location;
+          return this.notifyApplicationAfterRender();
+        };
+
+        Controller.prototype.pageLoaded = function() {
+          this.lastRenderedLocation = this.location;
+          return this.notifyApplicationAfterPageLoad();
+        };
+
+        Controller.prototype.clickCaptured = function() {
+          removeEventListener("click", this.clickBubbled, false);
+          return addEventListener("click", this.clickBubbled, false);
+        };
+
+        Controller.prototype.clickBubbled = function(event) {
+          var action, link, location;
+          if (this.enabled && this.clickEventIsSignificant(event)) {
+            if (link = this.getVisitableLinkForNode(event.target)) {
+              if (location = this.getVisitableLocationForLink(link)) {
+                if (this.applicationAllowsFollowingLinkToLocation(link, location)) {
+                  event.preventDefault();
+                  action = this.getActionForLink(link);
+                  return this.visit(location, {
+                    action: action
+                  });
+                }
+              }
+            }
+          }
+        };
+
+        Controller.prototype.applicationAllowsFollowingLinkToLocation = function(link, location) {
+          var event;
+          event = this.notifyApplicationAfterClickingLinkToLocation(link, location);
+          return !event.defaultPrevented;
+        };
+
+        Controller.prototype.applicationAllowsVisitingLocation = function(location) {
+          var event;
+          event = this.notifyApplicationBeforeVisitingLocation(location);
+          return !event.defaultPrevented;
+        };
+
+        Controller.prototype.notifyApplicationAfterClickingLinkToLocation = function(link, location) {
+          return Turbolinks.dispatch("turbolinks:click", {
+            target: link,
+            data: {
+              url: location.absoluteURL
+            },
+            cancelable: true
+          });
+        };
+
+        Controller.prototype.notifyApplicationBeforeVisitingLocation = function(location) {
+          return Turbolinks.dispatch("turbolinks:before-visit", {
+            data: {
+              url: location.absoluteURL
+            },
+            cancelable: true
+          });
+        };
+
+        Controller.prototype.notifyApplicationAfterVisitingLocation = function(location) {
+          return Turbolinks.dispatch("turbolinks:visit", {
+            data: {
+              url: location.absoluteURL
+            }
+          });
+        };
+
+        Controller.prototype.notifyApplicationBeforeCachingSnapshot = function() {
+          return Turbolinks.dispatch("turbolinks:before-cache");
+        };
+
+        Controller.prototype.notifyApplicationBeforeRender = function(newBody) {
+          return Turbolinks.dispatch("turbolinks:before-render", {
+            data: {
+              newBody: newBody
+            }
+          });
+        };
+
+        Controller.prototype.notifyApplicationAfterRender = function() {
+          return Turbolinks.dispatch("turbolinks:render");
+        };
+
+        Controller.prototype.notifyApplicationAfterPageLoad = function(timing) {
+          if (timing == null) {
+            timing = {};
+          }
+          return Turbolinks.dispatch("turbolinks:load", {
+            data: {
+              url: this.location.absoluteURL,
+              timing: timing
+            }
+          });
+        };
+
+        Controller.prototype.startVisit = function(location, action, properties) {
+          var ref;
+          if ((ref = this.currentVisit) != null) {
+            ref.cancel();
+          }
+          this.currentVisit = this.createVisit(location, action, properties);
+          this.currentVisit.start();
+          return this.notifyApplicationAfterVisitingLocation(location);
+        };
+
+        Controller.prototype.createVisit = function(location, action, arg) {
+          var historyChanged, ref, restorationData, restorationIdentifier, visit, xhr;
+          ref = arg != null ? arg : {}, restorationIdentifier = ref.restorationIdentifier, restorationData = ref.restorationData, historyChanged = ref.historyChanged, xhr = ref.xhr;
+          visit = new Turbolinks.Visit(this, location, action);
+          visit.restorationIdentifier = restorationIdentifier != null ? restorationIdentifier : Turbolinks.uuid();
+          visit.restorationData = Turbolinks.copyObject(restorationData);
+          visit.historyChanged = historyChanged;
+          visit.referrer = this.location;
+          if (xhr) {
+            visit.request = new Turbolinks.HttpRequest(visit, location, this.location, xhr);
+          }
+          return visit;
+        };
+
+        Controller.prototype.visitCompleted = function(visit) {
+          return this.notifyApplicationAfterPageLoad(visit.getTimingMetrics());
+        };
+
+        Controller.prototype.clickEventIsSignificant = function(event) {
+          return !(event.defaultPrevented || event.target.isContentEditable || event.which > 1 || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey);
+        };
+
+        Controller.prototype.getVisitableLinkForNode = function(node) {
+          if (this.nodeIsVisitable(node)) {
+            return Turbolinks.closest(node, "a[href]:not([target]):not([download])");
+          }
+        };
+
+        Controller.prototype.getVisitableLocationForLink = function(link) {
+          var location;
+          location = new Turbolinks.Location(link.getAttribute("href"));
+          if (this.locationIsVisitable(location)) {
+            return location;
+          }
+        };
+
+        Controller.prototype.getActionForLink = function(link) {
+          var ref;
+          return (ref = link.getAttribute("data-turbolinks-action")) != null ? ref : "advance";
+        };
+
+        Controller.prototype.nodeIsVisitable = function(node) {
+          var container;
+          if (container = Turbolinks.closest(node, "[data-turbolinks]")) {
+            return container.getAttribute("data-turbolinks") !== "false";
+          } else {
+            return true;
+          }
+        };
+
+        Controller.prototype.locationIsVisitable = function(location) {
+          return location.isPrefixedBy(this.view.getRootLocation()) && location.isHTML();
+        };
+
+        Controller.prototype.getCurrentRestorationData = function() {
+          return this.getRestorationDataForIdentifier(this.restorationIdentifier);
+        };
+
+        Controller.prototype.getRestorationDataForIdentifier = function(identifier) {
+          var base;
+          return (base = this.restorationData)[identifier] != null ? base[identifier] : base[identifier] = {};
+        };
+
+        return Controller;
+
+      })();
+
+    }).call(this);
+    (function() {
+      var createController, installTurbolinks, moduleIsInstalled;
+
+      Turbolinks.start = function() {
+        if (installTurbolinks()) {
+          if (Turbolinks.controller == null) {
+            Turbolinks.controller = createController();
+          }
+          return Turbolinks.controller.start();
+        }
+      };
+
+      installTurbolinks = function() {
+        if (window.Turbolinks == null) {
+          window.Turbolinks = Turbolinks;
+        }
+        return moduleIsInstalled();
+      };
+
+      createController = function() {
+        var controller;
+        controller = new Turbolinks.Controller;
+        controller.adapter = new Turbolinks.BrowserAdapter(controller);
+        return controller;
+      };
+
+      moduleIsInstalled = function() {
+        return window.Turbolinks === Turbolinks;
+      };
+
+      if (moduleIsInstalled()) {
+        Turbolinks.start();
+      }
+
+    }).call(this);
+  }).call(this);
+
+  if (typeof module === "object" && module.exports) {
+    module.exports = Turbolinks;
+  } else if (typeof define === "function" && define.amd) {
+    define(Turbolinks);
+  }
+}).call(this);

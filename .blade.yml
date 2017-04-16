@@ -12,4 +12,3 @@ build:
   logical_paths:
     - turbolinks.js
   path: dist
-  js_compressor: uglifier

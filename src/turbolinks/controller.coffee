@@ -42,14 +42,16 @@ class Turbolinks.Controller
     if @applicationAllowsVisitingLocation(location)
       if @locationIsVisitable(location)
         action = options.action ? "advance"
-        @adapter.visitProposedToLocationWithAction(location, action)
+        @startVisitToLocationWithAction(location, action, options)
       else
         window.location = location
 
-  startVisitToLocationWithAction: (location, action, restorationIdentifier) ->
+  startVisitToLocationWithAction: (location, action, properties) ->
     if Turbolinks.supported
-      restorationData = @getRestorationDataForIdentifier(restorationIdentifier)
-      @startVisit(location, action, {restorationData})
+      if properties.restorationIdentifier
+        properties = copyObject(properties)
+        properties.restorationData = @getRestorationDataForIdentifier(properties.restorationIdentifier)
+      @startVisit(location, action, properties)
     else
       window.location = location
 
@@ -190,12 +192,14 @@ class Turbolinks.Controller
     @currentVisit.start()
     @notifyApplicationAfterVisitingLocation(location)
 
-  createVisit: (location, action, {restorationIdentifier, restorationData, historyChanged} = {}) ->
+  createVisit: (location, action, {restorationIdentifier, restorationData, historyChanged, xhr} = {}) ->
     visit = new Turbolinks.Visit this, location, action
     visit.restorationIdentifier = restorationIdentifier ? Turbolinks.uuid()
     visit.restorationData = Turbolinks.copyObject(restorationData)
     visit.historyChanged = historyChanged
     visit.referrer = @location
+    if xhr
+      visit.request = new Turbolinks.HttpRequest visit, location, @location, xhr
     visit
 
   visitCompleted: (visit) ->
